@@ -18,23 +18,29 @@ async function userSignInController(req, res) {
       return null;
     }
   };
+
   try {
     const ipAddress = req.ip;
     const { email, password } = req.body;
+
+    // Check for missing fields
     if (!email || !password) {
       return res.status(400).json({ message: "Please enter all fields" });
     }
 
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
 
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    // Generate JWT token
     const tokenData = {
       email: user.email,
       id: user._id,
@@ -42,14 +48,19 @@ async function userSignInController(req, res) {
     const token = await jwt.sign(tokenData, process.env.JWT_SECRET, {
       expiresIn: "8h",
     });
+
+    // Cookie options
     const tokenOption = {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict', 
-      maxAge: 8 * 60 * 60 * 1000 
+      secure: "true",
+      httpOnly: true, 
+      sameSite: 'None' ,
+      maxAge: 8 * 60 * 60 * 1000, 
     };
+
+    // Fetch location data from IP
     const locationData = await getLocationFromIP(ipAddress);
-    console.log(locationData);
+
+    // Send login alert email
     sendMail(
       email,
       "Login Alert",
@@ -62,7 +73,7 @@ async function userSignInController(req, res) {
     <title>Login Alert</title>
     <style>
         body {
-           font-family: Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
@@ -112,10 +123,6 @@ async function userSignInController(req, res) {
             color: #777777;
             font-size: 12px;
         }
-            .header {
-            text-align: center;
-            padding-bottom: 20px;
-        }
         .header img {
             max-width: 150px;
         }
@@ -123,7 +130,7 @@ async function userSignInController(req, res) {
 </head>
 <body>
     <div class="container">
-    <div class="header">
+        <div class="header">
             <img src="https://github.com/sujal0311/temp/blob/main/OIG4.z91PgW.jpeg?raw=true" alt="Rupeekart Logo">
         </div>
         <div class="header">
@@ -135,10 +142,8 @@ async function userSignInController(req, res) {
         </div>
         <div class="details">
             <h3>Login Details:</h3>
-            <p><strong>IP Address: ${ipAddress}</strong> </p>
-            <p><strong>Location:</strong> ${locationData.city},${
-        locationData.region
-      },${locationData.country}</p>
+            <p><strong>IP Address:</strong> ${ipAddress}</p>
+            <p><strong>Location:</strong> ${locationData.city}, ${locationData.region}, ${locationData.country}</p>
             <p><strong>Account Email:</strong> ${email}</p>
             <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
         </div>
@@ -151,15 +156,16 @@ async function userSignInController(req, res) {
         </div>
     </div>
 </body>
-</html>
-`
+</html>`
     );
+
+    // Set the cookie and return success response
     return res.cookie("token", token, tokenOption).status(200).json({
       message: "Login successful",
-      data: token,
       success: true,
       error: false,
     });
+
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
