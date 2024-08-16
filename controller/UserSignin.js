@@ -45,6 +45,8 @@ async function userSignInController(req, res) {
     const tokenOption = {
       secure: true,
       httpOnly: true,
+      sameSite: 'Strict', 
+      maxAge: 8 * 60 * 60 * 1000 
     };
     const locationData = await getLocationFromIP(ipAddress);
     console.log(locationData);
