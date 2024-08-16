@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/userModels");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("./helpers/sendMail");
+const fetch = require("node-fetch"); // Make sure to install node-fetch: npm install node-fetch
 
 async function userSignInController(req, res) {
   const ipinfoToken = "7a54519fa4e678";
@@ -20,7 +21,10 @@ async function userSignInController(req, res) {
   };
 
   try {
-    const ipAddress = req.ip;
+    // Fetch IP address from request headers or fallback to req.ip
+    const ipAddress = req.headers["x-forwarded-for"] || req.ip;
+    console.log("IP Address:", ipAddress); // Debugging log
+
     const { email, password } = req.body;
 
     // Check for missing fields
@@ -51,7 +55,7 @@ async function userSignInController(req, res) {
 
     // Cookie options
     const tokenOption = {
-      secure: "true",
+      secure: true,
       httpOnly: true, 
       sameSite: 'None' ,
       maxAge: 8 * 60 * 60 * 1000, 
@@ -59,6 +63,7 @@ async function userSignInController(req, res) {
 
     // Fetch location data from IP
     const locationData = await getLocationFromIP(ipAddress);
+    console.log("Location Data:", locationData); // Debugging log
 
     // Send login alert email
     sendMail(
@@ -143,7 +148,7 @@ async function userSignInController(req, res) {
         <div class="details">
             <h3>Login Details:</h3>
             <p><strong>IP Address:</strong> ${ipAddress}</p>
-            <p><strong>Location:</strong> ${locationData.city}, ${locationData.region}, ${locationData.country}</p>
+            <p><strong>Location:</strong> ${locationData?.city || "Unknown"}, ${locationData?.region || "Unknown"}, ${locationData?.country || "Unknown"}</p>
             <p><strong>Account Email:</strong> ${email}</p>
             <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
         </div>
