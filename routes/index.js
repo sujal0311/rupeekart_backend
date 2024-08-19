@@ -36,7 +36,7 @@ const getNotificationController=require("../controller/getNotificationController
 const countNotifications=require("../controller/countNotifications")
 const UpdateOrderStatusController=require("../controller/UpdateOrderStatusController")
 const DeleteOrderController=require("../controller/DeleteOrderController")
-
+const createInvoiceController=require("../controller/createInvoiceController")
 // User Authentication
 router.post("/signup", UserSignupController);
 router.post("/signin", UserSigninController);
@@ -79,5 +79,7 @@ router.post("/update-order-status",UpdateOrderStatusController)
 router.post("/send-notification",sendNotificationController)
 router.get("/get-notification",getNotificationController)
 router.get("/count-notifications", countNotifications);
+// create invoice
+router.post("/generate-invoice", createInvoiceController);
 
 module.exports = router;
