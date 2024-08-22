@@ -37,6 +37,7 @@ const countNotifications=require("../controller/countNotifications")
 const UpdateOrderStatusController=require("../controller/UpdateOrderStatusController")
 const DeleteOrderController=require("../controller/DeleteOrderController")
 const createInvoiceController=require("../controller/createInvoiceController")
+const { createTicket, getUserTickets, getAllTickets ,updateTicketStatus} = require("../controller/TicketController")
 // User Authentication
 router.post("/signup", UserSignupController);
 router.post("/signin", UserSigninController);
@@ -81,5 +82,11 @@ router.get("/get-notification",getNotificationController)
 router.get("/count-notifications", countNotifications);
 // create invoice
 router.post("/generate-invoice", createInvoiceController);
+// tickets
+router.post('/tickets', authToken, createTicket);
+router.get('/tickets', authToken, getUserTickets);
+// admin ticket
+router.get('/admin/tickets', getAllTickets);
+router.post('/admin/updateTicketStatus', updateTicketStatus);
 
 module.exports = router;
