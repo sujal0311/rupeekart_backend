@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/userModels");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("./helpers/sendMail");
-const fetch = require("node-fetch"); // Make sure to install node-fetch: npm install node-fetch
+const fetch = require("node-fetch"); 
 
 async function userSignInController(req, res) {
   const ipinfoToken = "7a54519fa4e678";
